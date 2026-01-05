@@ -210,21 +210,21 @@ The complete PPO objective combines:
 
 1. **Policy loss** (clipped surrogate):
 
-   $$
-   L^{CLIP}(\theta) = \mathbb{E}_t \left[ \min(r_t(\theta) \hat{A}_t, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) \hat{A}_t) \right]
-   $$
+$$
+L^{CLIP}(\theta) = \mathbb{E}_t \left[ \min(r_t(\theta) \hat{A}_t, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) \hat{A}_t) \right]
+$$
 
 2. **Value loss**:
 
-   $$
-   L^{VF}(\theta) = \mathbb{E}_t \left[ (V_\theta(s_t) - \hat{R}_t)^2 \right]
-   $$
+$$
+L^{VF}(\theta) = \mathbb{E}_t \left[ (V_\theta(s_t) - \hat{R}_t)^2 \right]
+$$
 
 3. **Entropy bonus** (encourages exploration):
 
-   $$
-   S[\pi_\theta](s) = -\sum_a \pi_\theta(a|s) \log \pi_\theta(a|s)
-   $$
+$$
+S[\pi_\theta](s) = -\sum_a \pi_\theta(a|s) \log \pi_\theta(a|s)
+$$
 
 **Total loss**:
 
@@ -250,9 +250,9 @@ Vectorized environments run multiple environment instances in parallel:
 ### 7.2 Implementation Details
 
 With $N$ parallel environments:
-- Observations: shape $(N, \text{obs\_dim})$
-- Actions: shape $(N, \text{action\_dim})$ or $(N,)$
-- Rollout storage: shape $(\text{num\_steps}, N, \ldots)$
+- Observations: shape $(N, d_{\text{obs}})$ where $d_{\text{obs}}$ is the observation dimension
+- Actions: shape $(N, d_{\text{action}})$ or $(N,)$ where $d_{\text{action}}$ is the action dimension  
+- Rollout storage: shape $(T, N, \ldots)$ where $T$ is the rollout length (`num_steps`)
 
 **Rollout collection**:
 ```python
@@ -373,11 +373,11 @@ Typically: 4-10 epochs work well.
 
 2. **Approximate KL Divergence**:
 
-   $$
-   \text{KL}(\pi_{\theta_{old}} || \pi_\theta) \approx \mathbb{E}_t [(\text{ratio}_t - 1) - \log(\text{ratio}_t)]
-   $$
+$$
+\text{KL}(\pi_{\theta_{old}} || \pi_\theta) \approx \mathbb{E}_t [(\text{ratio}_t - 1) - \log(\text{ratio}_t)]
+$$
 
-   - Measures policy change
+- Measures policy change
    - Should be small (< 0.1 typically)
    - Large KL = policy changing too much
 
@@ -387,11 +387,11 @@ Typically: 4-10 epochs work well.
 
 4. **Explained Variance**:
 
-   $$
-   1 - \frac{\text{Var}(R - V)}{\text{Var}(R)}
-   $$
+$$
+1 - \frac{\text{Var}(R - V)}{\text{Var}(R)}
+$$
 
-   - Measures value function quality
+- Measures value function quality
    - Should be > 0.5 (value function predicts returns well)
 
 5. **Policy Loss**: Should decrease (we're maximizing, so loss should go down)
