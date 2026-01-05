@@ -89,9 +89,12 @@ Key metrics logged:
 ```
 code/
 ├── ppoFromScratch.py    # Main PPO implementation
+├── train_brax.py       # Training script for BRAX environments
+├── brax_wrapper.py     # BRAX environment wrapper
 ├── README.md            # This file
 ├── REPORT.md            # Theoretical report
-└── runs/                # TensorBoard logs
+├── runs/                # TensorBoard logs (created during training)
+└── models/              # Saved models (created during training)
 ```
 
 ## Key Components
@@ -185,23 +188,6 @@ python3 train_brax.py --env_name humanoid --num_envs 32 --total_timesteps 2_000_
 - `fetch`, `grasp`, `ur5e` - Manipulation tasks
 - `reacher`, `acrobot` - Control tasks
 
-### BRAX-Specific Considerations
-
-**For Demonstration (Recommended for Academic Projects)**:
-1. **Reduced timesteps**: 1-2M is sufficient to show learning
-   - Ant: 1M timesteps (~2-3 hours on CPU)
-   - Humanoid: 2M timesteps (~4-6 hours on CPU)
-2. **Fewer parallel environments**: 32-64 for Ant, 16-32 for Humanoid
-3. **Shorter rollouts**: `num_steps=1024` instead of `2048`
-
-**For Full Training (Optional)**:
-1. **Vectorization**: BRAX environments are natively vectorized and run efficiently on GPUs/TPUs
-2. **Hyperparameters**: BRAX environments typically need:
-   - Longer training (10M+ timesteps for complex tasks)
-   - More parallel environments (128-512)
-   - Standard PPO hyperparameters work well
-3. **Performance**: BRAX can simulate thousands of environments in parallel on GPU
-
 ### Example Usage
 
 **For Demonstration**:
@@ -238,7 +224,7 @@ train_ppo_brax(
 
 ### Monitoring BRAX Training
 
-Use TensorBoard as usual:
+Use TensorBoard:
 ```bash
 tensorboard --logdir runs
 ```
