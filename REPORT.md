@@ -223,13 +223,13 @@ $$
 3. **Entropy bonus** (encourages exploration):
 
 $$
-S[\pi_\theta](s) = -\sum_a \pi_\theta(a|s) \log \pi_\theta(a|s)
+S\left[\pi_\theta\right](s) = -\sum_a \pi_\theta(a|s) \log \pi_\theta(a|s)
 $$
 
 **Total loss**:
 
 $$
-L(\theta) = -L^{CLIP}(\theta) + c_1 L^{VF}(\theta) - c_2 \mathbb{E}_t [S[\pi_\theta](s_t)]
+L(\theta) = -L^{CLIP}(\theta) + c_1 L^{VF}(\theta) - c_2 \mathbb{E}_t \left[S\left[\pi_\theta\right](s_t)\right]
 $$
 
 where:
