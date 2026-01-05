@@ -11,6 +11,7 @@ Proximal Policy Optimization (PPO) [Schulman et al., 2017] is a policy gradient 
 ### 1.1 Motivation
 
 Policy gradient methods aim to optimize the expected return:
+
 $$
 J(\theta) = \mathbb{E}_{\tau \sim \pi_\theta} [R(\tau)]
 $$
@@ -18,6 +19,7 @@ $$
 where $\tau = (s_0, a_0, r_0, s_1, \ldots)$ is a trajectory and $R(\tau)$ is the return.
 
 The policy gradient theorem provides:
+
 $$
 \nabla_\theta J(\theta) = \mathbb{E}_{\tau \sim \pi_\theta} \left[ \sum_{t=0}^T \nabla_\theta \log \pi_\theta(a_t | s_t) \cdot R(\tau) \right]
 $$
@@ -32,6 +34,7 @@ However, this has high variance. PPO addresses this through:
 ### 2.1 Policy Gradient Theorem
 
 The policy gradient can be written as:
+
 $$
 \nabla_\theta J(\theta) = \mathbb{E}_{s \sim \rho^\pi, a \sim \pi_\theta} [\nabla_\theta \log \pi_\theta(a|s) \cdot Q^\pi(s,a)]
 $$
@@ -41,6 +44,7 @@ where $\rho^\pi$ is the state visitation distribution and $Q^\pi(s,a)$ is the ac
 ### 2.2 Advantage Function
 
 We can reduce variance by using advantages instead of Q-values:
+
 $$
 A^\pi(s,a) = Q^\pi(s,a) - V^\pi(s)
 $$
@@ -48,6 +52,7 @@ $$
 where $V^\pi(s)$ is the value function. The advantage measures how much better action $a$ is compared to the average action in state $s$.
 
 The policy gradient becomes:
+
 $$
 \nabla_\theta J(\theta) = \mathbb{E}_{s \sim \rho^\pi, a \sim \pi_\theta} [\nabla_\theta \log \pi_\theta(a|s) \cdot A^\pi(s,a)]
 $$
@@ -55,11 +60,13 @@ $$
 ### 2.3 Importance Sampling
 
 To reuse data from an old policy $\pi_{\theta_{old}}$, we use importance sampling:
+
 $$
 \mathbb{E}_{a \sim \pi_\theta} [f(a)] = \mathbb{E}_{a \sim \pi_{\theta_{old}}} \left[ \frac{\pi_\theta(a|s)}{\pi_{\theta_{old}}(a|s)} \cdot f(a) \right]
 $$
 
 The importance ratio is:
+
 $$
 r_t(\theta) = \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{old}}(a_t|s_t)}
 $$
@@ -69,6 +76,7 @@ $$
 ### 3.1 Clipped Surrogate Objective
 
 PPO maximizes a clipped surrogate objective:
+
 $$
 L^{CLIP}(\theta) = \mathbb{E}_t \left[ \min \left( r_t(\theta) \hat{A}_t, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) \hat{A}_t \right) \right]
 $$
@@ -129,6 +137,7 @@ $$
 $$
 
 where:
+
 $$
 \delta_t = r_t + \gamma V(s_{t+1}) - V(s_t)
 $$
@@ -136,11 +145,13 @@ $$
 is the TD error.
 
 **Recursive form** (used in implementation):
+
 $$
 \hat{A}_t = \delta_t + (\gamma \lambda) \hat{A}_{t+1}
 $$
 
 Computed backwards in time:
+
 $$
 \hat{A}_t = \delta_t + (\gamma \lambda) (1 - \text{done}_t) \hat{A}_{t+1}
 $$
@@ -154,6 +165,7 @@ $$
 ### 4.4 Returns Computation
 
 Returns (used for value function learning) are:
+
 $$
 \hat{R}_t = \hat{A}_t + V(s_t)
 $$
@@ -165,11 +177,13 @@ This gives the n-step return estimate used to train the value function.
 ### 5.1 Value Function Objective
 
 The value function $V^\pi(s)$ estimates the expected return from state $s$:
+
 $$
 V^\pi(s) = \mathbb{E}_{\tau \sim \pi} \left[ \sum_{t=0}^\infty \gamma^t r_t \mid s_0 = s \right]
 $$
 
 We learn $V_\theta(s)$ by minimizing:
+
 $$
 L^{VF}(\theta) = \mathbb{E}_t \left[ (V_\theta(s_t) - \hat{R}_t)^2 \right]
 $$
@@ -177,6 +191,7 @@ $$
 ### 5.2 Value Function Clipping
 
 PPO optionally clips the value function update:
+
 $$
 L^{VF}(\theta) = \mathbb{E}_t \left[ \max \left( (V_\theta(s_t) - \hat{R}_t)^2, (V_{\theta_{old}}(s_t) + \text{clip}(V_\theta(s_t) - V_{\theta_{old}}(s_t), -\epsilon, \epsilon) - \hat{R}_t)^2 \right) \right]
 $$
@@ -194,21 +209,25 @@ This prevents the value function from changing too much, similar to policy clipp
 The complete PPO objective combines:
 
 1. **Policy loss** (clipped surrogate):
+
    $$
    L^{CLIP}(\theta) = \mathbb{E}_t \left[ \min(r_t(\theta) \hat{A}_t, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) \hat{A}_t) \right]
    $$
 
 2. **Value loss**:
+
    $$
    L^{VF}(\theta) = \mathbb{E}_t \left[ (V_\theta(s_t) - \hat{R}_t)^2 \right]
    $$
 
 3. **Entropy bonus** (encourages exploration):
+
    $$
    S[\pi_\theta](s) = -\sum_a \pi_\theta(a|s) \log \pi_\theta(a|s)
    $$
 
 **Total loss**:
+
 $$
 L(\theta) = -L^{CLIP}(\theta) + c_1 L^{VF}(\theta) - c_2 \mathbb{E}_t [S[\pi_\theta](s_t)]
 $$
@@ -243,6 +262,7 @@ for step in range(num_steps):
 ```
 
 **Advantage computation**: Same GAE formula, but computed per environment:
+
 $$
 \hat{A}_t^{(i)} = \delta_t^{(i)} + (\gamma \lambda) (1 - \text{done}_t^{(i)}) \hat{A}_{t+1}^{(i)}
 $$
@@ -250,6 +270,7 @@ $$
 ### 7.3 Bootstrapping with Vectorization
 
 When an environment terminates (done=True), we don't bootstrap from the next state:
+
 $$
 \hat{A}_t = \delta_t + (\gamma \lambda) \cdot (1 - \text{done}_t) \cdot \hat{A}_{t+1}
 $$
@@ -300,9 +321,11 @@ We only bootstrap if the episode hasn't ended.
 - Adaptive learning rates help with different parameter scales
 
 **Learning Rate Annealing**:
+
 $$
 \text{lr}(t) = \text{lr}_0 \cdot \left(1 - \frac{t}{T}\right)
 $$
+
 - Gradually reduces learning rate
 - Helps convergence in later training
 
@@ -349,9 +372,11 @@ Typically: 4-10 epochs work well.
    - Variance is normal (stochastic policy)
 
 2. **Approximate KL Divergence**:
+
    $$
    \text{KL}(\pi_{\theta_{old}} || \pi_\theta) \approx \mathbb{E}_t [(\text{ratio}_t - 1) - \log(\text{ratio}_t)]
    $$
+
    - Measures policy change
    - Should be small (< 0.1 typically)
    - Large KL = policy changing too much
@@ -361,9 +386,11 @@ Typically: 4-10 epochs work well.
    - Very high (> 0.5) = learning rate too high or clipping too aggressive
 
 4. **Explained Variance**:
+
    $$
    1 - \frac{\text{Var}(R - V)}{\text{Var}(R)}
    $$
+
    - Measures value function quality
    - Should be > 0.5 (value function predicts returns well)
 

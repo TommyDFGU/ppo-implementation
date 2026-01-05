@@ -168,14 +168,14 @@ Train on Ant environment (demonstration):
 ```bash
 python3 train_brax.py --env_name ant --num_envs 64 --total_timesteps 1_000_000
 ```
-- **Time**: ~2-3 hours on 2020 Intel MacBook Air, ~5-10 minutes on GPU
+- **Time**: ~2-3 hours on 2020 Intel MacBook Air
 - **Shows learning**: ✅ Yes - episodic return increases over time
 
 Train on Humanoid environment (demonstration):
 ```bash
 python3 train_brax.py --env_name humanoid --num_envs 32 --total_timesteps 2_000_000
 ```
-- **Time**: ~4-6 hours on 2020 Intel MacBook Air, ~10-20 minutes on GPU
+- **Time**: ~4-6 hours on 2020 Intel MacBook Air
 - **Shows learning**: ✅ Yes - demonstrates PPO works on complex tasks
 
 ### Available BRAX Environments
